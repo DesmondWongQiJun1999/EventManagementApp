@@ -1,0 +1,27 @@
+
+.body {
+    background: #2196f3;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+  
+.App {
+    text-align: center;
+  }
+  
+.form {
+    width: 330px;
+    height: 200px;
+    margin: auto;
+    display: flex;
+    flex-direction: column;
+    background: white;
+    padding: 20px;
+    margin-top: 250px;
+    justify-content: center;
+    /* position: absolute; */
+    /* top: 50%;
+    left: 50%; */
+}
