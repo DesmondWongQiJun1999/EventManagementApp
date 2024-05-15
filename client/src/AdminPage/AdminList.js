@@ -28,15 +28,21 @@ import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
+import { format } from "date-fns";
+import dayjs from 'dayjs';
+
 
 const AdminList = () => {
   const API_URL = "http://localhost:5000/";
   const [Events, setEvents] = useState([]);
+  const [EventDetails, setEventDetails] = useState(null);
   const navigate = useNavigate();
 
   const [anchorEl, setAnchorEl] = useState(null);
   const openMenu = Boolean(anchorEl);
-  const handleClick = (event) => {
+  const handleClick = (event, x) => {
+    setEditID(x?._id);
+    setEventDetails(x);
     setAnchorEl(event.currentTarget);
   };
   const closeMenu = () => {
@@ -54,6 +60,14 @@ const AdminList = () => {
 
   const closeEditDialog = () => {
     setOpenEditDialog(false);
+    closeMenu();
+  };
+
+  const [openDetailsDialog, setOpenDetailsDialog] = useState(false);
+
+  const closeDetailsDialog = () => {
+    setOpenDetailsDialog(false);
+    closeMenu();
   };
 
   const loadEvent = () => {
@@ -200,7 +214,7 @@ const AdminList = () => {
                   aria-controls={openMenu ? "long-menu" : undefined}
                   aria-expanded={openMenu ? "true" : undefined}
                   aria-haspopup="true"
-                  onClick={handleClick}
+                  onClick={(event) => handleClick(event, x)}
                 >
                   <MoreVertIcon />
                 </IconButton>
@@ -217,11 +231,16 @@ const AdminList = () => {
                     horizontal: "center",
                   }}
                 >
-                  <MenuItem onClick={closeMenu}>View</MenuItem>
+                  <MenuItem
+                    onClick={() => {
+                      setOpenDetailsDialog(true);
+                    }}
+                  >
+                    View
+                  </MenuItem>
                   <MenuItem
                     onClick={() => {
                       setOpenEditDialog(true);
-                      setEditID(x?._id);
                     }}
                   >
                     Edit
@@ -339,6 +358,7 @@ const AdminList = () => {
             label="Event Title"
             fullWidth
             variant="standard"
+            defaultValue={EventDetails?.Title}
           />
 
           <TextField
@@ -351,6 +371,7 @@ const AdminList = () => {
             fullWidth
             variant="standard"
             style={{ marginTop: "10px", marginBottom: "30px" }}
+            defaultValue={EventDetails?.Description}
           />
 
           <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -359,6 +380,7 @@ const AdminList = () => {
                 label="Event Start Time"
                 name="StartTime"
                 slotProps={{ popper: { placement: "right" } }}
+                defaultValue={EventDetails?.StartTime ? dayjs(EventDetails.StartTime) : null}
               />
             </DemoContainer>
           </LocalizationProvider>
@@ -369,6 +391,8 @@ const AdminList = () => {
                 label="Event End Time"
                 name="EndTime"
                 slotProps={{ popper: { placement: "right" } }}
+                defaultValue={EventDetails?.EndTime ? dayjs(EventDetails.EndTime) : null}
+
               />
             </DemoContainer>
           </LocalizationProvider>
@@ -383,11 +407,87 @@ const AdminList = () => {
             fullWidth
             variant="standard"
             style={{ marginTop: "15px" }}
+            defaultValue={EventDetails?.LocationLink}
           />
         </DialogContent>
         <DialogActions>
           <Button onClick={closeEditDialog}>Cancel</Button>
           <Button type="submit">Save</Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog
+        open={openDetailsDialog}
+        onClose={closeDetailsDialog}
+      >
+        <DialogTitle>Event Details</DialogTitle>
+        <DialogContent>
+          <TextField
+            autoFocus
+            disabled
+            margin="dense"
+            id="name"
+            name="Title"
+            label="Event Title"
+            fullWidth
+            value={EventDetails?.Title}
+            variant="standard"
+          />
+
+          <TextField
+            autoFocus
+            disabled
+            margin="dense"
+            id="name"
+            name="Description"
+            label="Event Description"
+            fullWidth
+            value={EventDetails?.Description}
+            variant="standard"
+            style={{ marginTop: "35px" }}
+          />
+
+          <TextField
+            autoFocus
+            disabled
+            margin="dense"
+            id="name"
+            name="StartTime"
+            label="Event Start Time"
+            fullWidth
+            value={EventDetails?.StartTime ? format(new Date(EventDetails?.StartTime), 'yyyy/MM/dd kk:mm:ss'): "Error: No End Date"}
+            variant="standard"
+            style={{ marginTop: "35px" }}
+          />
+
+          <TextField
+            autoFocus
+            disabled
+            margin="dense"
+            id="name"
+            name="EndTime"
+            label="Event End Time"
+            fullWidth
+            value={EventDetails?.EndTime ? format(new Date(EventDetails?.EndTime), 'yyyy/MM/dd kk:mm:ss') : "Error: No End Date"}
+            variant="standard"
+            style={{ marginTop: "35px" }}
+          />
+
+          <TextField
+            autoFocus
+            disabled
+            margin="dense"
+            id="name"
+            name="LocationLink"
+            label="Location/Link"
+            fullWidth
+            variant="standard"
+            value={EventDetails?.LocationLink}
+            style={{ marginTop: "35px"}}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={closeDetailsDialog}>Close</Button>
         </DialogActions>
       </Dialog>
 

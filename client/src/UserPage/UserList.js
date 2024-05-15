@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   List,
   ListItem,
@@ -11,11 +11,38 @@ import {
   Button,
   Box,
 } from "@mui/material";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogTitle from "@mui/material/DialogTitle";
+import TextField from "@mui/material/TextField";
+import { format } from "date-fns";
+
 import { useNavigate } from "react-router";
 
 const UserList = () => {
-  let Events = ["Event 1", "Event 2", "Event 3"];
+  const API_URL = "http://localhost:5000/";
+  const [Events, setEvents] = useState([]);
+  const [EventDetails, setEventDetails] = useState(null);
   const navigate = useNavigate();
+
+  const [openDetailsDialog, setOpenDetailsDialog] = useState(false);
+
+  const closeDetailsDialog = () => {
+    setOpenDetailsDialog(false);
+  };
+
+  const loadEvent = () => {
+    fetch(API_URL + "api/events")
+      .then((response) => response.json())
+      .then((data) => {
+        setEvents(data);
+      });
+  };
+
+  useEffect(() => {
+    loadEvent();
+  }, []);
 
   return (
     <>
@@ -37,7 +64,7 @@ const UserList = () => {
                 textOverflow: "ellipsis",
               }}
             >
-              Event Management App
+              Event Management App - User
             </Typography>
           </Box>
           <List>
@@ -67,9 +94,16 @@ const UserList = () => {
             <>
               <ListItem alignItems="flex-start">
                 <ListItemButton component="a" href="#simple-list">
-                  <ListItemText primary={x} />
+                  <ListItemText primary={x?.Title} />
                 </ListItemButton>
-                <Button variant="outlined" sx={{ marginLeft: "auto" }}>
+                <Button
+                  variant="outlined"
+                  onClick={() => {
+                    setEventDetails(x)
+                    setOpenDetailsDialog(true);
+                  }}
+                  sx={{ marginLeft: "auto" }}
+                >
                   DETAILS
                 </Button>
               </ListItem>
@@ -79,6 +113,92 @@ const UserList = () => {
           );
         })}
       </List>
+
+      <Dialog
+        open={openDetailsDialog}
+        onClose={closeDetailsDialog}
+        // PaperProps={{
+        //   component: "form",
+        //   onSubmit: (event) => {
+        //     event.preventDefault();
+        //     const formData = new FormData(event.currentTarget);
+        //     const formJson = Object.fromEntries(formData.entries());
+        //     // const email = formJson.email;
+        //     // console.log(email);
+        //     editEvent(formJson);
+        //   },
+        // }}
+      >
+        <DialogTitle>Event Details</DialogTitle>
+        <DialogContent>
+          <TextField
+            autoFocus
+            disabled
+            margin="dense"
+            id="name"
+            name="Title"
+            label="Event Title"
+            fullWidth
+            value={EventDetails?.Title}
+            variant="standard"
+          />
+
+          <TextField
+            autoFocus
+            disabled
+            margin="dense"
+            id="name"
+            name="Description"
+            label="Event Description"
+            fullWidth
+            value={EventDetails?.Description}
+            variant="standard"
+            style={{ marginTop: "35px" }}
+          />
+
+          <TextField
+            autoFocus
+            disabled
+            margin="dense"
+            id="name"
+            name="StartTime"
+            label="Event Start Time"
+            fullWidth
+            value={EventDetails?.StartTime ? format(new Date(EventDetails?.StartTime), 'yyyy/MM/dd kk:mm:ss'): "Error: No End Date"}
+            variant="standard"
+            style={{ marginTop: "35px" }}
+          />
+
+          <TextField
+            autoFocus
+            disabled
+            margin="dense"
+            id="name"
+            name="EndTime"
+            label="Event End Time"
+            fullWidth
+            value={EventDetails?.EndTime ? format(new Date(EventDetails?.EndTime), 'yyyy/MM/dd kk:mm:ss') : "Error: No End Date"}
+            variant="standard"
+            style={{ marginTop: "35px" }}
+          />
+
+          <TextField
+            autoFocus
+            disabled
+            margin="dense"
+            id="name"
+            name="LocationLink"
+            label="Location/Link"
+            fullWidth
+            variant="standard"
+            value={EventDetails?.LocationLink}
+            style={{ marginTop: "35px"}}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={closeDetailsDialog}>Close</Button>
+        </DialogActions>
+      </Dialog>
     </>
   );
 };
