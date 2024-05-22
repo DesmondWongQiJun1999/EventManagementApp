@@ -1,5 +1,6 @@
 const express = require("express")
 const Event = require("./models/event.model")
+const Users = require("./models/users.model")
 const router = express.Router()
 
 router.get("/events", async (req, res) => {
@@ -65,6 +66,28 @@ router.patch("/events/edit/:id", async (req, res) => {
 	}
 })
 
+router.post("/login",async(req,res)=>{
+    const{email,password}=req.body
+
+    try{
+        const check = await Users.findOne({Email:email})
+
+        if(check?.Role == "Admin"){
+            res.json("admin")
+        }
+		else if (check?.Role == "User"){
+            res.json("user")
+        }
+        else{
+            res.json("invalid")
+        }
+
+    }
+    catch(e){
+        res.json("fail")
+    }
+
+})
 module.exports = router;
 
 
